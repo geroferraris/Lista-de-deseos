@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+<title>Lista de Deseos</title>
+
+<style>
+
+body{
+    margin:0;
+    padding:20px;
+    background:#1e1e1e;
+    color:white;
+    font-family:Arial,sans-serif;
+}
+
+.card{
+    background:#2b2b2b;
+    padding:15px;
+    border-radius:15px;
+    margin-bottom:20px;
+}
+
+input,select,button{
+    width:100%;
+    padding:12px;
+    margin-top:10px;
+    border:none;
+    border-radius:10px;
+    background:#3a3a3a;
+    color:white;
+    font-size:16px;
+    box-sizing:border-box;
+}
+
+button{
+    background:#4caf50;
+}
+
+button:hover{
+    opacity:0.9;
+}
+
+.delete-btn{
+    background:#ff5555;
+    width:auto;
+    padding:6px 10px;
+    font-size:12px;
+}
+
+.reset-btn{
+    background:#ff5555;
+    width:auto;
+}
+
+.item{
+    border-radius:12px;
+    padding:12px;
+    margin-top:10px;
+}
+
+.rojo{
+    background:#7a2b2b;
+}
+
+.amarillo{
+    background:#7a6a2b;
+}
+
+.verde{
+    background:#2b6a3a;
+}
+
+.sinprecio{
+    border:3px solid #4da6ff;
+}
+
+.row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+}
+
+.row-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+}
+
+.nombre{
+    font-weight:bold;
+    word-break:break-word;
+}
+
+.precio{
+    white-space:nowrap;
+}
+
+.controls{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-top:10px;
+    flex-wrap:wrap;
+}
+
+.total{
+    font-size:22px;
+    font-weight:bold;
+}
+
+.warning{
+    color:#4da6ff;
+    font-weight:bold;
+}
+
+h3{
+    margin-bottom:5px;
+}
+
+small{
+    opacity:0.8;
+}
+
+</style>
+</head>
+
+<body>
+
+<h1>🎯 Lista de Deseos</h1>
+
+<div class="card">
+
+    <h2>Agregar</h2>
+
+    <input
+        id="nombre"
+        placeholder="Nombre"
+    >
+
+    <input
+        id="precio"
+        placeholder="Precio (opcional)"
+        inputmode="decimal"
+    >
+
+    <select id="prioridad">
+        <option value="rojo">🔴 Alta</option>
+        <option value="amarillo">🟡 Media</option>
+        <option value="verde">🟢 Baja</option>
+    </select>
+
+    <button onclick="agregarItem()">
+        Agregar
+    </button>
+
+</div>
+
+<div class="card">
+
+    <h2>🔴 Alta prioridad</h2>
+    <div id="rojos"></div>
+
+</div>
+
+<div class="card">
+
+    <h2>🟡 Media prioridad</h2>
+    <div id="amarillos"></div>
+
+</div>
+
+<div class="card">
+
+    <h2>🟢 Baja prioridad</h2>
+    <div id="verdes"></div>
+
+</div>
+
+<div class="card">
+
+    <h2>Total</h2>
+
+    <div id="total" class="total"></div>
+
+    <div id="warning"></div>
+
+</div>
+
+<div class="card">
+
+    <h2>✅ Comprados</h2>
+
+    <div id="comprados"></div>
+
+</div>
+
+<div class="card">
+
+    <button
+        class="reset-btn"
+        onclick="resetearTodo()"
+    >
+        RESET
+    </button>
+
+</div>
+
+<script>
+
+let items =
+JSON.parse(
+    localStorage.getItem("wishlist_items")
+) || [];
+
+function formato(valor){
+
+    return valor.toLocaleString(
+        "es-AR",
+        {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        }
+    );
+
+}
+
+function guardar(){
+
+    localStorage.setItem(
+        "wishlist_items",
+        JSON.stringify(items)
+    );
+
+}
+
+function agregarItem(){
+
+    const nombre =
+    document.getElementById("nombre")
+    .value.trim();
+
+    if(!nombre) return;
+
+    const precioTexto =
+    document.getElementById("precio")
+    .value.trim();
+
+    const prioridad =
+    document.getElementById("prioridad")
+    .value;
+
+    let precio = null;
+
+    if(precioTexto !== ""){
+
+        precio = parseFloat(
+            precioTexto.replace(",", ".")
+        );
+
+        if(isNaN(precio)){
+            precio = null;
+        }
+
+    }
+
+    items.push({
+
+        id: Date.now(),
+
+        nombre,
+        precio,
+        prioridad,
+
+        seleccionado:true,
+        comprado:false
+
+    });
+
+    document.getElementById("nombre").value="";
+    document.getElementById("precio").value="";
+
+    guardar();
+    render();
+
+}
+
+function eliminarItem(id){
+
+    if(
+        !confirm("¿Eliminar elemento?")
+    ){
+        return;
+    }
+
+    items =
+    items.filter(
+        x => x.id !== id
+    );
+
+    guardar();
+    render();
+
+}
+
+function toggleSeleccion(id){
+
+    const item =
+    items.find(
+        x => x.id === id
+    );
+
+    item.seleccionado =
+    !item.seleccionado;
+
+    guardar();
+    render();
+
+}
+
+function toggleComprado(id){
+
+    const item =
+    items.find(
+        x => x.id === id
+    );
+
+    item.comprado =
+    !item.comprado;
+
+    guardar();
+    render();
+
+}
+
+function cambiarPrioridad(id,valor){
+
+    const item =
+    items.find(
+        x => x.id === id
+    );
+
+    item.prioridad = valor;
+
+    guardar();
+    render();
+
+}
+
+function crearHTML(item){
+
+    const claseColor =
+    item.prioridad;
+
+    const clasePrecio =
+    item.precio === null
+    ?
+    "sinprecio"
+    :
+    "";
+
+    return `
+
+        <div class="item ${claseColor} ${clasePrecio}">
+
+            <div class="row-top">
+
+                <div class="nombre">
+                    ${item.nombre}
+                </div>
+
+                <div class="precio">
+                    ${
+                        item.precio === null
+                        ?
+                        "❓"
+                        :
+                        "$" + formato(item.precio)
+                    }
+                </div>
+
+            </div>
+
+            <div class="controls">
+
+                <label>
+                    <input
+                        type="checkbox"
+                        ${item.seleccionado ? "checked" : ""}
+                        onchange="toggleSeleccion(${item.id})"
+                    >
+                    Incluir
+                </label>
+
+                <label>
+                    <input
+                        type="checkbox"
+                        ${item.comprado ? "checked" : ""}
+                        onchange="toggleComprado(${item.id})"
+                    >
+                    Comprado
+                </label>
+
+                <select
+                    onchange="cambiarPrioridad(${item.id},this.value)"
+                >
+                    <option value="rojo" ${item.prioridad==="rojo"?"selected":""}>🔴</option>
+                    <option value="amarillo" ${item.prioridad==="amarillo"?"selected":""}>🟡</option>
+                    <option value="verde" ${item.prioridad==="verde"?"selected":""}>🟢</option>
+                </select>
+
+                <button
+                    class="delete-btn"
+                    onclick="eliminarItem(${item.id})"
+                >
+                    X
+                </button>
+
+            </div>
+
+        </div>
+
+    `;
+
+}
+
+function render(){
+
+    const rojos =
+    document.getElementById("rojos");
+
+    const amarillos =
+    document.getElementById("amarillos");
+
+    const verdes =
+    document.getElementById("verdes");
+
+    const comprados =
+    document.getElementById("comprados");
+
+    rojos.innerHTML="";
+    amarillos.innerHTML="";
+    verdes.innerHTML="";
+    comprados.innerHTML="";
+
+    let total = 0;
+
+    let faltantes = 0;
+
+    items.forEach(item=>{
+
+        if(item.comprado){
+
+            comprados.innerHTML +=
+            crearHTML(item);
+
+            return;
+        }
+
+        if(
+            item.seleccionado
+        ){
+
+            if(item.precio === null){
+
+                faltantes++;
+
+            }else{
+
+                total += item.precio;
+
+            }
+        }
+
+        if(item.prioridad==="rojo"){
+            rojos.innerHTML += crearHTML(item);
+        }
+
+        if(item.prioridad==="amarillo"){
+            amarillos.innerHTML += crearHTML(item);
+        }
+
+        if(item.prioridad==="verde"){
+            verdes.innerHTML += crearHTML(item);
+        }
+
+    });
+
+    document.getElementById("total")
+    .innerHTML =
+    "$" + formato(total)
+
+    document.getElementById("warning")
+    .innerHTML =
+    faltantes > 0
+    ?
+    `<span class="warning">
+        ⚠ ${faltantes} elemento(s) sin precio
+    </span>`
+    :
+    "";
+
+}
+
+function resetearTodo(){
+
+    if(
+        !confirm(
+            "¿Seguro que querés borrar todo?"
+        )
+    ){
+        return;
+    }
+
+    items = [];
+
+    guardar();
+    render();
+
+}
+
+document.getElementById("nombre")
+.addEventListener("keydown", e=>{
+
+    if(e.key==="Enter"){
+        agregarItem();
+    }
+
+});
+
+render();
+
+</script>
+
+</body>
+</html>
+
+
