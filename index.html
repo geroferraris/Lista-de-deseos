@@ -50,6 +50,13 @@ button:hover{
     font-size:12px;
 }
 
+.edit-btn{
+    width:auto;
+    padding:6px 10px;
+    font-size:12px;
+    background:#4da6ff;
+}
+    
 .reset-btn{
     background:#ff5555;
     width:auto;
@@ -170,6 +177,13 @@ small{
         Agregar
     </button>
 
+    <button
+        class="edit-btn"
+        onclick="editarPrecio(${item.id})"
+    >
+        $
+    </button>
+    
 </div>
 
 <div class="card">
@@ -464,14 +478,13 @@ function crearHTML(item){
                 >
                     $
                 </button>
-                
+
                 <button
                     class="delete-btn"
                     onclick="eliminarItem(${item.id})"
                 >
                     X
                 </button>
-
             </div>
 
         </div>
