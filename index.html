@@ -170,6 +170,10 @@ small{
         Agregar
     </button>
 
+    <button onclick="editarPrecio(${item.id})">
+    $
+    </button>
+
 </div>
 
 <div class="card">
@@ -299,6 +303,40 @@ function agregarItem(){
     guardar();
     render();
 
+}
+
+function editarPrecio(id){
+
+    const item =
+    items.find(x => x.id === id);
+
+    let nuevo =
+    prompt(
+        "Nuevo precio (vacío = sin precio)",
+        item.precio ?? ""
+    );
+
+    if(nuevo === null) return;
+
+    nuevo = nuevo.trim();
+
+    if(nuevo === ""){
+
+        item.precio = null;
+
+    }else{
+
+        item.precio = parseFloat(
+            nuevo.replace(",", ".")
+        );
+
+        if(isNaN(item.precio)){
+            return;
+        }
+    }
+
+    guardar();
+    render();
 }
 
 function eliminarItem(id){
