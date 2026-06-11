@@ -170,10 +170,6 @@ small{
         Agregar
     </button>
 
-    <button onclick="editarPrecio(${item.id})">
-    $
-    </button>
-
 </div>
 
 <div class="card">
@@ -463,6 +459,12 @@ function crearHTML(item){
                     <option value="verde" ${item.prioridad==="verde"?"selected":""}>🟢</option>
                 </select>
 
+                <button
+                    onclick="editarPrecio(${item.id})"
+                >
+                    $
+                </button>
+                
                 <button
                     class="delete-btn"
                     onclick="eliminarItem(${item.id})"
