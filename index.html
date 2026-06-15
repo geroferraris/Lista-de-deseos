@@ -246,10 +246,6 @@ small{
 
 <script>
     
-let items =
-JSON.parse(
-    localStorage.getItem("wishlist_items")
-) || [];
 
 function formato(valor){
 
@@ -263,6 +259,12 @@ function formato(valor){
 
 }
 
+let items =
+JSON.parse(
+    localStorage.getItem("wishlist_items")
+) || [];
+
+    
 function guardar(){
 
     localStorage.setItem(
