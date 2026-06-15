@@ -244,24 +244,7 @@ small{
 
 </div>
 
-<div class="progress">
-    <div
-        class="progress-fill"
-        style="width:${porcentaje}%">
-    </div>
-</div>
-
 <script>
-
-let totalItems = items.length;
-
-let compradosItems =
-items.filter(x => x.comprado).length;
-
-let porcentaje =
-totalItems === 0
-? 0
-: (compradosItems / totalItems) * 100;
     
 let items =
 JSON.parse(
@@ -595,6 +578,16 @@ function render(){
     :
     "";
 
+    let totalItems = items.length;
+
+let compradosItems =
+items.filter(x => x.comprado).length;
+
+let porcentaje =
+totalItems === 0
+? 0
+: (compradosItems / totalItems) * 100;
+    
     document.getElementById("progresoTexto").innerHTML =
 `${porcentaje.toFixed(0)}% (${compradosItems}/${totalItems})`;
 
